@@ -7,6 +7,7 @@ import {
   StoreAuditRequest,
   StoreGenesisRequest,
 } from "./ai.types";
+import { MarketingCampaignRequest } from "./marketing.types";
 
 export default async (app: FastifyInstance) => {
   const ai = new AiController();
@@ -32,6 +33,14 @@ export default async (app: FastifyInstance) => {
     app,
     "/product/describe",
     ai.productDescribe
+  );
+
+  // ── AI Marketing Team ──────────────────────────────────────────────────────
+  // POST /ai/marketing/campaign  — 3-agent CMO+Researcher+Writer pipeline
+  ApiHelper.post<MarketingCampaignRequest, {}, {}, {}>(
+    app,
+    "/marketing/campaign",
+    ai.marketingCampaign
   );
 
   // ── Conversational Commerce Assistant (SSE streaming) ─────────────────────

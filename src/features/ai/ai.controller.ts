@@ -1,12 +1,14 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ApiHelper, ApiHelperHandler, IReply } from "../../helpers/ApiHelper";
 import { AiService } from "./ai.service";
+import { runMarketingTeam } from "./marketing.orchestrator";
 import {
   CommerceChatRequest,
   ProductDescribeRequest,
   StoreAuditRequest,
   StoreGenesisRequest,
 } from "./ai.types";
+import { MarketingCampaignRequest } from "./marketing.types";
 
 export class AiController {
   private service: AiService;
@@ -75,6 +77,27 @@ export class AiController {
     } catch (error) {
       console.error("[AI] storeAudit error:", error);
       ApiHelper.callFailed(reply, "AI audit failed, please try again", 500);
+    }
+  };
+
+  // POST /ai/marketing/campaign  — full AI marketing team agentic run
+  marketingCampaign: ApiHelperHandler<
+    MarketingCampaignRequest,
+    {},
+    {},
+    {},
+    IReply
+  > = async (request, reply) => {
+    const body = request.body;
+    if (!body?.brief?.trim() || !body?.channels?.length) {
+      return ApiHelper.missingParameters(reply, "brief and channels are required");
+    }
+    try {
+      const result = await runMarketingTeam(body);
+      ApiHelper.success(reply, result);
+    } catch (error) {
+      console.error("[AI] marketingCampaign error:", error);
+      ApiHelper.callFailed(reply, "Marketing team failed, please try again", 500);
     }
   };
 
